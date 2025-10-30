@@ -47,7 +47,6 @@ export class ResponseInterceptor
             data && typeof data === 'object' && '__message' in data
               ? { ...data, __message: undefined }
               : data,
-          timestamp: new Date().toISOString(),
         }),
       ),
     );

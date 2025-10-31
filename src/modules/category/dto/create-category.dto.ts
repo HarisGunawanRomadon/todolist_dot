@@ -6,5 +6,5 @@ export class CreateCategoryDto {
   @Length(3, 100, {
     message: 'Name must be at least 3-100 characters long',
   })
-  name: string;
+  name?: string;
 }

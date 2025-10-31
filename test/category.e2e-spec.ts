@@ -208,4 +208,45 @@ describe('CategoryTest (e2e)', () => {
       expect(response.status).toBe(200);
     });
   });
+
+  describe('PATCH /category/:id', () => {
+    beforeEach(async () => {
+      await testService.createCategory();
+    });
+
+    it('should be reject if id category is invalid', async () => {
+      const category = await testService.getCategory();
+
+      const response = await request(app.getHttpServer())
+        .patch(`/category/${category + 1}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          name: 'Work',
+        });
+
+      logger.info(
+        `Test Response Update Category : ${JSON.stringify(response.body)}`,
+      );
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBeDefined();
+    });
+
+    it('should be able to update category', async () => {
+      const category = await testService.getCategory();
+
+      const response = await request(app.getHttpServer())
+        .patch(`/category/${category}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          name: 'Haris',
+        });
+
+      logger.info(
+        `Test Response Update Category : ${JSON.stringify(response.body)}`,
+      );
+
+      expect(response.status).toBe(200);
+    });
+  });
 });

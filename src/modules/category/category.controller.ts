@@ -8,6 +8,7 @@ import {
   UseGuards,
   HttpCode,
   ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -17,6 +18,8 @@ import { LoggedInGuard } from '../../common/guards/logged-in.guard';
 import { Auth } from '../../common/decorators/auth.decorator';
 import { User } from '../../database/entities/user.entity';
 import { GetCategoryResponse } from './response/get-category.response';
+import { UpdateCategoryDto } from './dto/update-category.dto';
+import { UpdateCategoryResponse } from './response/update-category.response';
 
 @Controller('category')
 @UseGuards(LoggedInGuard)
@@ -49,14 +52,16 @@ export class CategoryController {
     return this.categoryService.findOne(id, user.id);
   }
 
-  //
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateCategoryDto: UpdateCategoryDto,
-  // ) {
-  //   return this.categoryService.update(+id, updateCategoryDto);
-  // }
+  @Patch(':id')
+  @ResponseMessage('Update Category Successfully')
+  @HttpCode(200)
+  async update(
+    @Auth() user: User,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() request: UpdateCategoryDto,
+  ): Promise<UpdateCategoryResponse> {
+    return this.categoryService.update(id, request, user.id);
+  }
 
   @Delete(':id')
   @ResponseMessage('Delete Category Successfully')

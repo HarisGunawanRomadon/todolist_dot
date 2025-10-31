@@ -13,6 +13,8 @@ import { DeleteResult, Repository } from 'typeorm';
 import { CreateCategoryResponse } from './response/create-category.response';
 import { plainToInstance } from 'class-transformer';
 import { GetCategoryResponse } from './response/get-category.response';
+import { UpdateCategoryDto } from './dto/update-category.dto';
+import { UpdateCategoryResponse } from './response/update-category.response';
 
 @Injectable()
 export class CategoryService {
@@ -93,9 +95,35 @@ export class CategoryService {
     });
   }
 
-  // update(id: number, updateCategoryDto: UpdateCategoryDto) {
-  //   return `This action updates a #${id} category`;
-  // }
+  async update(
+    id: number,
+    request: UpdateCategoryDto,
+    userId: number,
+  ): Promise<UpdateCategoryResponse> {
+    const category = await this.findOne(id, userId);
+
+    if (request.name) {
+      category.name = request.name;
+    }
+
+    const result = await this.categoryRepo
+      .createQueryBuilder()
+      .update(Category)
+      .set(category)
+      .where('id = :id', { id })
+      .returning(['id', 'name'])
+      .execute();
+
+    if (result.affected === 0) {
+      throw new NotFoundException('Category not found');
+    }
+
+    this.logger.debug(`Update Category Result : ${JSON.stringify(result)}`);
+
+    return plainToInstance(UpdateCategoryResponse, result.raw[0], {
+      excludeExtraneousValues: true,
+    });
+  }
 
   async remove(categoryId: number, userId: number): Promise<DeleteResult> {
     const category = await this.categoryRepo.findOne({

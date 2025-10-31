@@ -7,6 +7,7 @@ import { Todo } from '../../database/entities/todo.entity';
 import { Repository } from 'typeorm';
 import { CreateTodoResponse } from './response/create-todo.response';
 import { plainToInstance } from 'class-transformer';
+import { GetTodoResponse } from './response/get-todo.response';
 
 @Injectable()
 export class TodoService {
@@ -55,8 +56,29 @@ export class TodoService {
     });
   }
 
-  findAll() {
-    return `This action returns all todo`;
+  async findAll(userId: number): Promise<GetTodoResponse[]> {
+    const todos = await this.todoRepo.find({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      select: {
+        title: true,
+        description: true,
+        status: true,
+        priority: true,
+        category: true,
+        dueDate: true,
+        completedAt: true,
+      },
+    });
+
+    this.logger.debug(`Get All Todos : ${JSON.stringify(todos)}`);
+
+    return plainToInstance(GetTodoResponse, todos, {
+      excludeExtraneousValues: true,
+    });
   }
 
   findOne(id: number) {

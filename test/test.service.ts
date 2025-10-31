@@ -116,4 +116,38 @@ export class TestService {
       },
     });
   }
+
+  async deleteAllTodo() {
+    const user = await this.userRepo.findOne({
+      where: {
+        email: 'test@mail.com',
+      },
+    });
+
+    await this.todoRepo.deleteAll();
+  }
+
+  async createManyTodos() {
+    const user = await this.userRepo.findOne({
+      where: {
+        email: 'test@mail.com',
+      },
+    });
+
+    await this.todoRepo.save([
+      {
+        title: 'futsal',
+        user: {
+          id: user?.id,
+        },
+      },
+      {
+        title: 'billiard',
+        description: 'billiard description',
+        user: {
+          id: user?.id,
+        },
+      },
+    ]);
+  }
 }

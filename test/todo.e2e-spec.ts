@@ -52,6 +52,7 @@ describe('CategoryTest (e2e)', () => {
     afterEach(async () => {
       await testService.deleteTodo();
     });
+
     it('should be rejected if request is invalid', async () => {
       const response = await request(app.getHttpServer())
         .post('/todo')
@@ -100,6 +101,29 @@ describe('CategoryTest (e2e)', () => {
       expect(response.body.data.category).toBe(53);
       expect(response.body.data.dueDate).toBe('10-11-2025');
       expect(response.body.data.completedAt).toBe('11-11-2025');
+    });
+  });
+
+  describe('GET /todo', () => {
+    beforeEach(async () => {
+      await testService.createManyTodos();
+    });
+
+    afterEach(async () => {
+      await testService.deleteAllTodo();
+    });
+
+    it('should be able to get all Todos', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/todo')
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      logger.info(
+        `Test Response Get All Todos ${JSON.stringify(response.body)}`,
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBeGreaterThan(0);
     });
   });
 });

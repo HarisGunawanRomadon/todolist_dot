@@ -17,6 +17,7 @@ import { ResponseMessage } from '../../common/decorators/response-message.decora
 import { Auth } from '../../common/decorators/auth.decorator';
 import { User } from '../../database/entities/user.entity';
 import { CreateTodoResponse } from './response/create-todo.response';
+import { GetTodoResponse } from './response/get-todo.response';
 
 @Controller('todo')
 @UseGuards(LoggedInGuard)
@@ -36,8 +37,9 @@ export class TodoController {
   }
 
   @Get()
-  findAll() {
-    return this.todoService.findAll();
+  @ResponseMessage('Get All Todos Successfully')
+  async findAll(@Auth() user: User): Promise<GetTodoResponse[]> {
+    return this.todoService.findAll(user.id);
   }
 
   @Get(':id')

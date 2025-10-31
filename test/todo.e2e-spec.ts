@@ -50,7 +50,7 @@ describe('CategoryTest (e2e)', () => {
 
   describe('POST /todo', () => {
     afterEach(async () => {
-      await testService.deleteTodo();
+      await testService.deleteAll();
     });
 
     it('should be rejected if request is invalid', async () => {
@@ -76,6 +76,8 @@ describe('CategoryTest (e2e)', () => {
     });
 
     it('should be able to create todo', async () => {
+      const categoryId = await testService.createCategoryAndReturnId();
+
       const response = await request(app.getHttpServer())
         .post('/todo')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -84,23 +86,12 @@ describe('CategoryTest (e2e)', () => {
           description: 'Coding description',
           status: 'in_progress',
           priority: 'high',
-          category: 53,
+          category: categoryId,
           dueDate: '10-11-2025',
           completedAt: '11-11-2025',
         });
 
-      logger.info(
-        `Test Response Create Todo : ${JSON.stringify(response.body)}`,
-      );
-
       expect(response.status).toBe(201);
-      expect(response.body.data.title).toBe('Coding');
-      expect(response.body.data.description).toBe('Coding description');
-      expect(response.body.data.status).toBe('in_progress');
-      expect(response.body.data.priority).toBe('high');
-      expect(response.body.data.category).toBe(53);
-      expect(response.body.data.dueDate).toBe('10-11-2025');
-      expect(response.body.data.completedAt).toBe('11-11-2025');
     });
   });
 

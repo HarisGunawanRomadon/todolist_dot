@@ -74,3 +74,62 @@ src/
 - Pola ini “tumbuh” mulus menjadi **DDD/Hexagonal penuh** bila kompleksitas domain meningkat (mis. menambah domain events, aggregate, dll.).
 
 > Singkatnya, pattern ini memberikan **struktur yang rapi, mudah diuji, mudah dirawat, dan skalable**
+
+---
+
+## Cara Install dan Menjalankan Aplikasi
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone <repository-url>
+cd <nama-folder-project>
+```
+
+### 2️⃣ Install Dependencies
+
+```bash
+npm install
+```
+
+### 3️⃣ Setup Environment (.env)
+
+Sesuaikan file .env seperti file .env.example.
+
+```env
+NODE_ENV=
+PORT=
+
+# Database
+DB_HOST=
+DB_PORT=
+DB_USERNAME=
+DB_PASSWORD=
+DB_NAME=
+DB_SYNCHRONIZE=
+DB_LOGGING=
+
+# JWT
+JWT_SECRET=
+JWT_TOKEN_EXPIRES_IN=
+```
+
+### 5️⃣ Jalankan Migrasi
+
+```bash
+npm run migration:create
+npm run migration:generate
+npm run migration:run
+```
+
+### 6️⃣ Jalankan Aplikasi
+
+```bash
+npm run start:dev
+```
+
+### 7️⃣ Jalankan Test (E2E)
+
+```bash
+npm run test:e2e
+```

@@ -176,4 +176,19 @@ export class TestService {
 
     return Number(todo?.id);
   }
+
+  async createCategoryAndReturnId() {
+    const user = await this.userRepo.findOne({
+      where: { email: 'test@mail.com' },
+    });
+    const result = await this.categoryRepo
+      .createQueryBuilder()
+      .insert()
+      .into(Category)
+      .values({ name: 'e2e-cat', user: { id: user!.id } })
+      .returning(['id'])
+      .execute();
+
+    return Number(result.raw[0].id);
+  }
 }

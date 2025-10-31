@@ -6,6 +6,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  HttpCode,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -30,14 +32,16 @@ export class CategoryController {
   }
 
   @Get()
-  findAll() {
-    return this.categoryService.findAll();
+  @HttpCode(200)
+  @ResponseMessage('Get All Category Successfully')
+  async findAll(@Auth() user: User): Promise<CreateCategoryResponse[]> {
+    return this.categoryService.findAll(user.id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.categoryService.findOne(+id);
+  // }
 
   //
   // @Patch(':id')
@@ -49,7 +53,9 @@ export class CategoryController {
   // }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoryService.remove(+id);
+  @ResponseMessage('Delete Category Successfully')
+  @HttpCode(200)
+  async remove(@Auth() user: User, @Param('id', ParseIntPipe) id: number) {
+    return this.categoryService.remove(id, user.id);
   }
 }

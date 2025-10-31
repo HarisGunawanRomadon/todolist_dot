@@ -44,6 +44,7 @@ describe('CategoryTest (e2e)', () => {
   });
 
   afterEach(async () => {
+    // await testService.deleteCategory();
     await app.close();
   });
 
@@ -116,6 +117,46 @@ describe('CategoryTest (e2e)', () => {
 
       expect(response.status).toBe(201);
       expect(response.body.data.name).toBe('Work');
+    });
+  });
+
+  describe('GET /category', () => {
+    beforeEach(async () => {
+      await testService.createManyCategory();
+    });
+
+    it('should be able get all category', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/category')
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      logger.info(
+        `Test Response Get All Category : ${JSON.stringify(response.body)}`,
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.length).toBe(2);
+    });
+  });
+
+  describe('DELETE /category/:id', () => {
+    beforeEach(async () => {
+      await testService.createCategory();
+    });
+
+    it('should be reject if category not found', async () => {
+      const category = await testService.getCategory();
+
+      const response = await request(app.getHttpServer())
+        .delete(`/category/${category + 1}`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      logger.info(
+        `Test Response Delete Category : ${JSON.stringify(response.body)}`,
+      );
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBeDefined();
     });
   });
 });

@@ -16,7 +16,7 @@ export class TestService {
 
   async deleteUser() {
     await this.userRepo.delete({
-      username: 'test',
+      email: 'test@mail.com',
     });
   }
 
@@ -39,11 +39,75 @@ export class TestService {
       .execute();
   }
 
+  async getCategory() {
+    const user = await this.userRepo.findOne({
+      where: {
+        email: 'test@mail.com',
+      },
+    });
+
+    const category = await this.categoryRepo.findOne({
+      where: {
+        user: {
+          id: user?.id,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return Number(category?.id);
+  }
+
   async createCategory() {
+    const user = await this.userRepo.findOne({
+      where: {
+        email: 'test@mail.com',
+      },
+    });
+
     await this.categoryRepo.save({
-      name: 'Test',
+      name: 'test category',
       user: {
-        id: 1,
+        id: user?.id,
+      },
+    });
+  }
+
+  async createManyCategory() {
+    const user = await this.userRepo.findOne({
+      where: {
+        email: 'test@mail.com',
+      },
+    });
+
+    await this.categoryRepo.save([
+      {
+        name: 'Test',
+        user: {
+          id: user?.id,
+        },
+      },
+      {
+        name: 'school',
+        user: {
+          id: user?.id,
+        },
+      },
+    ]);
+  }
+
+  async deleteCategory() {
+    const user = await this.userRepo.findOne({
+      where: {
+        email: 'test@mail.com',
+      },
+    });
+
+    await this.categoryRepo.delete({
+      user: {
+        id: user?.id,
       },
     });
   }

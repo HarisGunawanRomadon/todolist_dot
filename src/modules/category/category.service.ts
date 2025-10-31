@@ -1,12 +1,18 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from '../../database/entities/category.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { CreateCategoryResponse } from './response/create-category.response';
 import { plainToInstance } from 'class-transformer';
+import { GetCategoryResponse } from './response/get-category.response';
 
 @Injectable()
 export class CategoryService {
@@ -47,19 +53,49 @@ export class CategoryService {
     });
   }
 
-  findAll() {
-    return `This action returns all category`;
+  async findAll(userId: number): Promise<GetCategoryResponse[]> {
+    const categories = await this.categoryRepo.find({
+      where: {
+        user: { id: userId },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    this.logger.debug(
+      `Get All Category Result : ${JSON.stringify(categories)}`,
+    );
+
+    return plainToInstance(GetCategoryResponse, categories, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
-  }
+  // async findOne(categoryId: number, userId: number) {
+  //   return `This action returns a #${id} category`;
+  // }
 
   // update(id: number, updateCategoryDto: UpdateCategoryDto) {
   //   return `This action updates a #${id} category`;
   // }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(categoryId: number, userId: number): Promise<DeleteResult> {
+    const category = await this.categoryRepo.findOne({
+      where: {
+        id: categoryId,
+        user: { id: userId },
+      },
+    });
+
+    this.logger.debug(`Remove Category Result : ${JSON.stringify(category)}`);
+
+    if (!category) throw new NotFoundException('Category not found');
+
+    return await this.categoryRepo.delete({
+      id: categoryId,
+      user: { id: userId },
+    });
   }
 }

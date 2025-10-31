@@ -122,4 +122,83 @@ describe('AuthTest (e2e)', () => {
       expect(response.body.error).toBeDefined();
     });
   });
+
+  describe('POST /auth/login', () => {
+    beforeEach(async () => {
+      await testService.deleteAll();
+      await testService.createUser();
+    });
+
+    it('should be reject if request invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: '',
+          password: '',
+        });
+
+      logger.info(`Response : ${JSON.stringify(response.body)}`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be reject if email not registered', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: 'haris@mail.com',
+          password: 'Haris_12233',
+        });
+
+      logger.info(`Response : ${JSON.stringify(response.body)}`);
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBeDefined();
+    });
+
+    it('should be reject if email is wrong', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: 'test123@mail.com',
+          password: 'Test123456',
+        });
+
+      logger.info(`Response : ${JSON.stringify(response.body)}`);
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBeDefined();
+    });
+
+    it('should be reject if email is wrong', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: 'test@mail.com',
+          password: 'Test123456',
+        });
+
+      logger.info(`Response : ${JSON.stringify(response.body)}`);
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBeDefined();
+    });
+
+    it('should be able to login', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: 'test@mail.com',
+          password: 'Test_1234567890',
+        });
+
+      logger.info(`Response : ${JSON.stringify(response.body)}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.user.fullName).toBe('Test');
+      expect(response.body.data.user.username).toBe('test');
+      expect(response.body.data.user.email).toBe('test@mail.com');
+    });
+  });
 });

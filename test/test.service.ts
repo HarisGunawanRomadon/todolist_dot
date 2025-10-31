@@ -118,11 +118,11 @@ export class TestService {
   }
 
   async deleteAllTodo() {
-    const user = await this.userRepo.findOne({
-      where: {
-        email: 'test@mail.com',
-      },
-    });
+    // const user = await this.userRepo.findOne({
+    //   where: {
+    //     email: 'test@mail.com',
+    //   },
+    // });
 
     await this.todoRepo.deleteAll();
   }
@@ -149,5 +149,31 @@ export class TestService {
         },
       },
     ]);
+  }
+
+  async getTodo() {
+    const user = await this.userRepo.findOne({
+      where: {
+        email: 'test@mail.com',
+      },
+    });
+
+    const todo = await this.todoRepo.findOne({
+      where: {
+        user: { id: user?.id },
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        status: true,
+        priority: true,
+        category: true,
+        dueDate: true,
+        completedAt: true,
+      },
+    });
+
+    return Number(todo?.id);
   }
 }

@@ -7,6 +7,8 @@ import {
   Delete,
   Inject,
   UseGuards,
+  HttpCode,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -42,18 +44,15 @@ export class TodoController {
     return this.todoService.findAll(user.id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todoService.findOne(+id);
-  }
-
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
   //   return this.todoService.update(+id, updateTodoDto);
   // }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.todoService.remove(+id);
+  @ResponseMessage('Deleted Todo Successfully')
+  @HttpCode(200)
+  async remove(@Auth() user: User, @Param('id', ParseIntPipe) todoId: number) {
+    return this.todoService.remove(todoId, user.id);
   }
 }

@@ -126,4 +126,37 @@ describe('CategoryTest (e2e)', () => {
       expect(response.body.data.length).toBeGreaterThan(0);
     });
   });
+
+  describe('DELETE /todo/:id', () => {
+    beforeEach(async () => {
+      await testService.createManyTodos();
+    });
+
+    afterEach(async () => {
+      await testService.deleteAllTodo();
+    });
+
+    it('should be rejected if todo is not found', async () => {
+      const response = await request(app.getHttpServer())
+        .delete(`/todo/1`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      logger.info(`Test Response Delete Todo ${JSON.stringify(response.body)}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBeDefined();
+    });
+
+    it('should be able to delete data', async () => {
+      const todo = await testService.getTodo();
+
+      const response = await request(app.getHttpServer())
+        .delete(`/todo/${todo}`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      logger.info(`Test Response Delete Todo ${JSON.stringify(response.body)}`);
+
+      expect(response.status).toBe(200);
+    });
+  });
 });

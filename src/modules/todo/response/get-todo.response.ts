@@ -2,6 +2,9 @@ import { Expose, Transform } from 'class-transformer';
 
 export class GetTodoResponse {
   @Expose()
+  id: number;
+
+  @Expose()
   title: string;
 
   @Expose()

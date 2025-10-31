@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
@@ -64,6 +64,7 @@ export class TodoService {
         },
       },
       select: {
+        id: true,
         title: true,
         description: true,
         status: true,
@@ -81,15 +82,23 @@ export class TodoService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todo`;
-  }
+  async remove(todoId: number, userId: number) {
+    const todo = await this.todoRepo.findOne({
+      where: {
+        id: todoId,
+        user: {
+          id: userId,
+        },
+      },
+    });
 
-  // update(id: number, updateTodoDto: UpdateTodoDto) {
-  //   return `This action updates a #${id} todo`;
-  // }
+    if (!todo) throw new NotFoundException('Todo is not found');
 
-  remove(id: number) {
-    return `This action removes a #${id} todo`;
+    return await this.todoRepo.delete({
+      id: todoId,
+      user: {
+        id: userId,
+      },
+    });
   }
 }

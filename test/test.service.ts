@@ -54,6 +54,7 @@ export class TestService {
       },
       select: {
         id: true,
+        name: true,
       },
     });
 

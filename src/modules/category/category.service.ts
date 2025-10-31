@@ -73,9 +73,25 @@ export class CategoryService {
     });
   }
 
-  // async findOne(categoryId: number, userId: number) {
-  //   return `This action returns a #${id} category`;
-  // }
+  async findOne(
+    categoryId: number,
+    userId: number,
+  ): Promise<GetCategoryResponse> {
+    const category = await this.categoryRepo.findOne({
+      where: {
+        id: categoryId,
+        user: { id: userId },
+      },
+    });
+
+    this.logger.debug(`Remove Category Result : ${JSON.stringify(category)}`);
+
+    if (!category) throw new NotFoundException('Category not found');
+
+    return plainToInstance(GetCategoryResponse, category, {
+      excludeExtraneousValues: true,
+    });
+  }
 
   // update(id: number, updateCategoryDto: UpdateCategoryDto) {
   //   return `This action updates a #${id} category`;

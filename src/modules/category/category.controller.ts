@@ -16,6 +16,7 @@ import { ResponseMessage } from '../../common/decorators/response-message.decora
 import { LoggedInGuard } from '../../common/guards/logged-in.guard';
 import { Auth } from '../../common/decorators/auth.decorator';
 import { User } from '../../database/entities/user.entity';
+import { GetCategoryResponse } from './response/get-category.response';
 
 @Controller('category')
 @UseGuards(LoggedInGuard)
@@ -38,10 +39,15 @@ export class CategoryController {
     return this.categoryService.findAll(user.id);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.categoryService.findOne(+id);
-  // }
+  @Get(':id')
+  @HttpCode(200)
+  @ResponseMessage('Get Category Successfully')
+  async findOne(
+    @Auth() user: User,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<GetCategoryResponse> {
+    return this.categoryService.findOne(id, user.id);
+  }
 
   //
   // @Patch(':id')

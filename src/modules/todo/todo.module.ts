@@ -3,9 +3,10 @@ import { TodoService } from './todo.service';
 import { TodoController } from './todo.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Todo } from '../../database/entities/todo.entity';
+import { Category } from '../../database/entities/category.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Todo])],
+  imports: [TypeOrmModule.forFeature([Todo, Category])],
   controllers: [TodoController],
   providers: [TodoService],
 })

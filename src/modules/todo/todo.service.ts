@@ -10,17 +10,31 @@ import { plainToInstance } from 'class-transformer';
 import { GetTodoResponse } from './response/get-todo.response';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { UpdateTodoResponse } from './response/update-todo.response';
+import { Category } from '../../database/entities/category.entity';
 
 @Injectable()
 export class TodoService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     @InjectRepository(Todo) private readonly todoRepo: Repository<Todo>,
+    @InjectRepository(Category)
+    private readonly categoryRepo: Repository<Category>,
   ) {}
   async create(
     request: CreateTodoDto,
     userId: number,
   ): Promise<CreateTodoResponse> {
+    const category = await this.categoryRepo.findOne({
+      where: {
+        id: request.category,
+        user: {
+          id: userId,
+        },
+      },
+    });
+
+    if (!category) throw new NotFoundException('Category not found');
+
     const todo = await this.todoRepo
       .createQueryBuilder()
       .insert()

@@ -8,6 +8,8 @@ import { Repository } from 'typeorm';
 import { CreateTodoResponse } from './response/create-todo.response';
 import { plainToInstance } from 'class-transformer';
 import { GetTodoResponse } from './response/get-todo.response';
+import { UpdateTodoDto } from './dto/update-todo.dto';
+import { UpdateTodoResponse } from './response/update-todo.response';
 
 @Injectable()
 export class TodoService {
@@ -99,6 +101,64 @@ export class TodoService {
       user: {
         id: userId,
       },
+    });
+  }
+
+  async update(
+    id: number,
+    request: UpdateTodoDto,
+    userId: number,
+  ): Promise<UpdateTodoResponse> {
+    const todo = await this.todoRepo.findOne({
+      where: {
+        id: id,
+        user: {
+          id: userId,
+        },
+      },
+    });
+
+    this.logger.info(`Todo Result ${JSON.stringify(todo)}`);
+
+    if (!todo) throw new NotFoundException('Todo not found');
+
+    if (request.title !== undefined) todo.title = request.title;
+    if (request.description !== undefined)
+      todo.description = request.description;
+    if (request.status !== undefined) todo.status = request.status;
+    if (request.priority !== undefined) todo.priority = request.priority;
+    if (request.category !== undefined)
+      (todo as any).category = { id: request.category };
+    if (request.dueDate !== undefined) todo.dueDate = request.dueDate;
+    if (request.completedAt !== undefined)
+      todo.completedAt = request.completedAt;
+
+    const result = await this.todoRepo
+      .createQueryBuilder()
+      .update(Todo)
+      .set({
+        title: todo.title,
+        description: todo.description,
+        status: todo.status,
+        priority: todo.priority,
+        dueDate: todo.dueDate,
+        completedAt: todo.completedAt,
+      })
+      .where('id = :id AND "user_id" = :userId', { id, userId })
+      .returning([
+        'id',
+        'title',
+        'description',
+        'status',
+        'priority',
+        'category_id',
+        'dueDate',
+        'completedAt',
+      ])
+      .execute();
+
+    return plainToInstance(UpdateTodoResponse, result.raw[0], {
+      excludeExtraneousValues: true,
     });
   }
 }

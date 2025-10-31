@@ -159,4 +159,32 @@ describe('CategoryTest (e2e)', () => {
       expect(response.status).toBe(200);
     });
   });
+
+  describe('PATCH /todo/:id', () => {
+    beforeEach(async () => {
+      await testService.createManyTodos();
+    });
+
+    afterEach(async () => {
+      await testService.deleteAllTodo();
+    });
+
+    it('should be able to update todo', async () => {
+      const todo = await testService.getTodo();
+
+      logger.info(`Test Todo ${JSON.stringify(todo)}`);
+
+      const response = await request(app.getHttpServer())
+        .patch(`/todo/${todo}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          title: 'makan',
+        });
+
+      logger.info(`Test Response Update Todo ${JSON.stringify(response.body)}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.title).toBe('makan');
+    });
+  });
 });

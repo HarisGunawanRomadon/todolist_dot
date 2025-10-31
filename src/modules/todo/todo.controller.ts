@@ -9,6 +9,7 @@ import {
   UseGuards,
   HttpCode,
   ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -20,6 +21,7 @@ import { Auth } from '../../common/decorators/auth.decorator';
 import { User } from '../../database/entities/user.entity';
 import { CreateTodoResponse } from './response/create-todo.response';
 import { GetTodoResponse } from './response/get-todo.response';
+import { UpdateTodoDto } from './dto/update-todo.dto';
 
 @Controller('todo')
 @UseGuards(LoggedInGuard)
@@ -44,10 +46,16 @@ export class TodoController {
     return this.todoService.findAll(user.id);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
-  //   return this.todoService.update(+id, updateTodoDto);
-  // }
+  @Patch(':id')
+  @ResponseMessage('Update Todos Successfully')
+  @HttpCode(200)
+  async update(
+    @Auth() user: User,
+    @Param('id', ParseIntPipe) userId: number,
+    @Body() request: UpdateTodoDto,
+  ) {
+    return this.todoService.update(userId, request, user.id);
+  }
 
   @Delete(':id')
   @ResponseMessage('Deleted Todo Successfully')

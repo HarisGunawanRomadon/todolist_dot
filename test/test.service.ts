@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from '../src/database/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { Category } from '../src/database/entities/category.entity';
+import { Todo } from '../src/database/entities/todo.entity';
 
 @Injectable()
 export class TestService {
@@ -12,6 +13,8 @@ export class TestService {
     private readonly userRepo: Repository<User>,
     @InjectRepository(Category)
     private readonly categoryRepo: Repository<Category>,
+    @InjectRepository(Todo)
+    private readonly todoRepo: Repository<Todo>,
   ) {}
 
   async deleteUser() {
@@ -99,14 +102,15 @@ export class TestService {
     ]);
   }
 
-  async deleteCategory() {
+  async deleteTodo() {
     const user = await this.userRepo.findOne({
       where: {
         email: 'test@mail.com',
       },
     });
 
-    await this.categoryRepo.delete({
+    await this.todoRepo.delete({
+      title: 'Coding',
       user: {
         id: user?.id,
       },

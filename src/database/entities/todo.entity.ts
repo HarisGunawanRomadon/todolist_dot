@@ -12,7 +12,7 @@ export class Todo extends BaseEntity {
   @Column({ type: 'varchar', length: 100 })
   title: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   description: string;
 
   @Column({ type: 'enum', enum: todoStatus, default: todoStatus.PENDING })

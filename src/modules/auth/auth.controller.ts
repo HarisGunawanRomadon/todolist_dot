@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Inject, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Inject,
+  HttpCode,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { Logger } from 'winston';
@@ -7,6 +15,10 @@ import { ResponseMessage } from '../../common/decorators/response-message.decora
 import { LoginDto } from './dto/login.dto';
 import { RegisterResponse } from './response/register.response';
 import { LoginResponse } from './response/login.response';
+import { Auth } from '../../common/decorators/auth.decorator';
+import { User } from '../../database/entities/user.entity';
+import { GetUserResponse } from './response/get-user.response';
+import { LoggedInGuard } from '../../common/guards/logged-in.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -29,5 +41,14 @@ export class AuthController {
     // this.logger.debug(`Login Request : ${JSON.stringify(request)}`);
     this.logger.info(`NODE_ENV : ${process.env.NODE_ENV}`);
     return this.authService.login(request);
+  }
+
+  @UseGuards(LoggedInGuard)
+  @Get('/me')
+  @HttpCode(200)
+  @ResponseMessage('Get User Successfully')
+  async getUser(@Auth() user: User): Promise<GetUserResponse> {
+    this.logger.debug(`Get User Request : ${JSON.stringify(user)}`);
+    return this.authService.getUser(user.id);
   }
 }

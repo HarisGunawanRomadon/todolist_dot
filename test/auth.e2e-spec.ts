@@ -32,6 +32,10 @@ describe('AuthTest (e2e)', () => {
     await app.init();
   });
 
+  afterEach(async () => {
+    await app.close();
+  });
+
   describe('POST /auth/register', () => {
     beforeEach(async () => {
       await testService.deleteAll();
@@ -199,6 +203,64 @@ describe('AuthTest (e2e)', () => {
       expect(response.body.data.user.fullName).toBe('Test');
       expect(response.body.data.user.username).toBe('test');
       expect(response.body.data.user.email).toBe('test@mail.com');
+    });
+  });
+
+  describe('GET /user/me', () => {
+    beforeEach(async () => {
+      await testService.deleteAll();
+      await testService.createUser();
+    });
+
+    it('should be reject if token is invalid', async () => {
+      const login = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: 'test@mail.com',
+          password: 'Test_1234567890',
+        });
+
+      logger.info(`Response Login : ${JSON.stringify(login.body)}`);
+
+      const response = await request(app.getHttpServer())
+        .get('/auth/me')
+        .set('Authorization', `Bearer ${login.body.data.accessToken + 1}`);
+
+      logger.info(`Response : ${JSON.stringify(response.body)}`);
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBeDefined();
+    });
+
+    it('should be rejected if the user is not logged in', async () => {
+      const response = await request(app.getHttpServer()).get('/auth/me');
+
+      logger.info(`Response : ${JSON.stringify(response.body)}`);
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBeDefined();
+    });
+
+    it('should be able to login', async () => {
+      const login = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: 'test@mail.com',
+          password: 'Test_1234567890',
+        });
+
+      logger.info(`Response Test Login : ${JSON.stringify(login.body)}`);
+
+      const response = await request(app.getHttpServer())
+        .get('/auth/me')
+        .set('Authorization', `Bearer ${login.body.data.accessToken}`);
+
+      logger.info(`Response Test : ${JSON.stringify(response.body)}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.fullName).toBe('Test');
+      expect(response.body.data.username).toBe('test');
+      expect(response.body.data.email).toBe('test@mail.com');
     });
   });
 });

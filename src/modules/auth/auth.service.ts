@@ -17,6 +17,7 @@ import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from '../../model/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { LoginResponse } from './response/login.response';
+import { GetUserResponse } from './response/get-user.response';
 
 @Injectable()
 export class AuthService {
@@ -59,11 +60,17 @@ export class AuthService {
       .returning(['id', 'fullName', 'username', 'email'])
       .execute();
 
-    // const resultData = result.raw[0];
+    const raw = result.raw[0];
+    const mapped = {
+      id: raw.id,
+      fullName: raw.full_name,
+      username: raw.username,
+      email: raw.email,
+    };
 
-    this.logger.info(`Register Result : ${JSON.stringify(result)}`);
+    this.logger.info(`Register Result : ${JSON.stringify(mapped)}`);
 
-    return plainToInstance(RegisterResponse, result.raw[0], {
+    return plainToInstance(RegisterResponse, mapped, {
       excludeExtraneousValues: true,
     });
   }
@@ -98,7 +105,7 @@ export class AuthService {
       accessToken,
       user: {
         id: user.id,
-        full_name: user.fullName,
+        fullName: user.fullName,
         username: user.username,
         email: user.email,
       },
@@ -107,6 +114,28 @@ export class AuthService {
     this.logger.info(`Login Result : ${JSON.stringify(result)}`);
 
     return plainToInstance(LoginResponse, result, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async getUser(userId: number): Promise<GetUserResponse> {
+    const user = await this.userRepo.findOne({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        username: true,
+        email: true,
+      },
+    });
+
+    if (!user) throw new UnauthorizedException('User not found');
+
+    this.logger.debug(`Get User Result : ${JSON.stringify(user)}`);
+
+    return plainToInstance(GetUserResponse, user, {
       excludeExtraneousValues: true,
     });
   }

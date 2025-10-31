@@ -1,6 +1,6 @@
 import { Exclude, Expose } from 'class-transformer';
 
-export class RegisterResponse {
+export class GetUserResponse {
   @Expose()
   id: number;
 

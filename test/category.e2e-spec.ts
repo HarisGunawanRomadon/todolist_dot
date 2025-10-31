@@ -158,6 +158,20 @@ describe('CategoryTest (e2e)', () => {
       expect(response.status).toBe(404);
       expect(response.body.error).toBeDefined();
     });
+
+    it('should be able to delete category', async () => {
+      const category = await testService.getCategory();
+
+      const response = await request(app.getHttpServer())
+        .delete(`/category/${category}`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      logger.info(
+        `Test Response Delete Category : ${JSON.stringify(response.body)}`,
+      );
+
+      expect(response.status).toBe(200);
+    });
   });
 
   describe('Get /category/:id', () => {
